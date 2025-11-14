@@ -92,7 +92,7 @@ class HttpLLM(RemoteLLM):
             payload = {
                 "messages": await self._get_messages(oxy_request),
                 "model": self.model_name,
-                "stream": False,
+                "stream": True,
             }
             payload.update(llm_config)
             for k, v in self.llm_params.items():
