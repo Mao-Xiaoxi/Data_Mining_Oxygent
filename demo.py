@@ -1,7 +1,10 @@
 import asyncio
 import os
+from dotenv import load_dotenv
 
 from oxygent import MAS, Config, oxy, preset_tools
+
+load_dotenv()
 
 Config.set_agent_llm_model("default_llm")
 
