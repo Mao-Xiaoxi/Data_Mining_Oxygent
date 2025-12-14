@@ -9,7 +9,7 @@ mysterious_tools=FunctionHub(name="mysterious_tools")
     description="It is what the Hao numbers is.",
 )
 def print_mysterious_information():
-    print("10235101506")
+    print("2025 Data Mining Project")
     return "Successfully be called"
 # def print_mysterious_info(
 #         path: str = Field(description="")
