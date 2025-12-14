@@ -33,12 +33,12 @@ oxy_space = [
       desc="A tool that can query the time",
       tools=["time_tools"],
    ),
-   preset_tools.file_tools,
-   oxy.ReActAgent(
-      name="file_agent",
-      desc="A tool that can operate the file system", #可以设置prompt
-      tools=["file_tools"],
-   ),
+   # preset_tools.file_tools,
+   # oxy.ReActAgent(
+   #    name="file_agent",
+   #    desc="A tool that can operate the file system", #可以设置prompt
+   #    tools=["file_tools"],
+   # ),
    preset_tools.math_tools,
    oxy.ReActAgent(
       name="math_agent",
@@ -47,8 +47,8 @@ oxy_space = [
    ),
    tools.file_tools,
    oxy.ReActAgent(
-      name="new_file_agent",
-      tools=["new_tools"],
+      name="my_file_agent",
+      tools=["file_tools"],
       llm_model="default_llm",
    ),
    my_first_tools.mysterious_tools,
@@ -60,7 +60,7 @@ oxy_space = [
    oxy.ReActAgent(
       is_master=True,
       name="master_agent",
-      sub_agents=["time_agent", "file_agent", "math_agent","new_file_agent","mysterious_agent"],
+      sub_agents=["time_agent", "math_agent","my_file_agent","mysterious_agent"],
    )
 ]
 

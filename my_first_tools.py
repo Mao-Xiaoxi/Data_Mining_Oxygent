@@ -6,7 +6,7 @@ from oxygent.oxy import FunctionHub
 mysterious_tools=FunctionHub(name="mysterious_tools")
 
 @mysterious_tools.tool(
-    description="It is what the Hao numbers is.",
+    description="It is what the mysterious information is.",
 )
 def print_mysterious_information():
     print("2025 Data Mining Project")
