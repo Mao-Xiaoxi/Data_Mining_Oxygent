@@ -21,6 +21,7 @@ mathematician_prompt="""
 """
 
 oxy_space = [
+   # ==================================== oxygent 基本工具示例=======================================
    oxy.HttpLLM(   #注册LLM
       name="default_llm",
       api_key=os.getenv("DEFAULT_LLM_API_KEY"),
@@ -48,7 +49,7 @@ oxy_space = [
    #    tools=["math_tools"],
    # ),
 
-   # 调用MCP工具接口
+   # ====================================调用MCP工具接口=======================================
    oxy.StdioMCPClient(
       name="math_tools",
       params={
@@ -59,19 +60,23 @@ oxy_space = [
    oxy.StdioMCPClient(
       name="fetch_tools",
       params={
-         "command": "npx",
-         "args": ["-y", "@guhcostan/web-search-mcp@latest"],
+         "command": "node",
+         "args": ["D:\\APP\\Anaconda\\envs\\oxygent\\node_modules\\mcp-fetch-server\\dist\\index.js"]
       }
    ),
    oxy.StdioMCPClient(
       name="file_tools",
       params={
          "command": "npx",
-         "args": ["-y", "@modelcontextprotocol/server-filesystem", "d:\Python\Data_Mining_Oxygent"],
-         "disabled": "false",
-         "autoApprove": []
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "D:\\code\\python\\Data_Mining_OxyGent\\Datasets\\field"
+      ]
       }
    ),
+
+   # ====================================function call=======================================
    # tools.file_tools,
    # oxy.ReActAgent(
    #    name="my_file_agent",
@@ -84,6 +89,9 @@ oxy_space = [
       tools=["mysterious_tools"],
       llm_model="default_llm",
    ),
+
+
+   # ==================================== master agent =======================================
    oxy.ReActAgent(
       is_master=True,
       name="master_agent",
@@ -92,6 +100,7 @@ oxy_space = [
       sub_agents=["time_agent","mysterious_agent"], # ,"my_file_agent"
    )
 ]
+
 
 async def main():
    async with MAS(oxy_space=oxy_space) as mas:
