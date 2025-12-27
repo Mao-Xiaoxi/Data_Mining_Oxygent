@@ -169,13 +169,55 @@ class BaseLLM(Oxy):
                     continue
 
                 if item_type == "image_url":
-                    item[item_type]["url"] = await image_to_base64(
-                        item[item_type]["url"], self.max_image_pixels
-                    )
+                    try:
+                        item[item_type]["url"] = await image_to_base64(
+                            item[item_type]["url"], self.max_image_pixels
+                        )
+                    except FileNotFoundError:
+                        # Try to find in Datasets/field/ if it's a simple filename
+                        fname = os.path.basename(item[item_type]["url"])
+                        fallback_path = os.path.abspath(os.path.join("Datasets", "field", fname))
+                        try:
+                            item[item_type]["url"] = await image_to_base64(
+                                fallback_path, self.max_image_pixels
+                            )
+                        except Exception:
+                            # If still not found, convert to text error to avoid crash
+                            item["type"] = "text"
+                            item["text"] = f"[Image not found: {fname}]"
+                            if "image_url" in item:
+                                del item["image_url"]
+                    except Exception as e:
+                         logger.warning(f"Error processing image: {e}")
+                         item["type"] = "text"
+                         item["text"] = f"[Image processing error: {str(e)}]"
+                         if "image_url" in item:
+                                del item["image_url"]
+
                 elif item_type == "video_url":
-                    item[item_type]["url"] = await video_to_base64(
-                        item[item_type]["url"], self.max_video_size
-                    )
+                    try:
+                        item[item_type]["url"] = await video_to_base64(
+                            item[item_type]["url"], self.max_video_size
+                        )
+                    except FileNotFoundError:
+                        # Try fallback
+                        fname = os.path.basename(item[item_type]["url"])
+                        fallback_path = os.path.abspath(os.path.join("Datasets", "field", fname))
+                        try:
+                            item[item_type]["url"] = await video_to_base64(
+                                fallback_path, self.max_video_size
+                            )
+                        except Exception:
+                            item["type"] = "text"
+                            item["text"] = f"[Video not found: {fname}]"
+                            if "video_url" in item:
+                                del item["video_url"]
+                    except Exception as e:
+                         logger.warning(f"Error processing video: {e}")
+                         item["type"] = "text"
+                         item["text"] = f"[Video processing error: {str(e)}]"
+                         if "video_url" in item:
+                                del item["video_url"]
                 else:
                     logger.warning(
                         f"Unexpected content type: {item_type}",

@@ -40,7 +40,7 @@ class HttpLLM(RemoteLLM):
         """
 
         url = self.base_url.rstrip("/")
-        is_gemini = "generativelanguage.googleapis.com" in url
+        is_gemini = "generativelanguage.googleapis.com" in url and "openai" not in url
         use_openai = (self.api_key is not None) and (not is_gemini)
         if is_gemini:
             if not url.endswith(":generateContent"):
@@ -128,6 +128,8 @@ class HttpLLM(RemoteLLM):
                                 },
                             )
                         if use_openai:
+                            if "choices" not in chunk or not chunk["choices"]:
+                                continue
                             delta = chunk["choices"][0]["delta"].get(
                                 "content", ""
                             ) or chunk["choices"][0]["delta"].get(

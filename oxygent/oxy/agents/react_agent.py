@@ -351,8 +351,8 @@ class ReActAgent(LocalAgent):
                 oxy_responses = await asyncio.gather(
                     *[
                         oxy_request.call(
-                            callee=tool_call_dict["tool_name"],
-                            arguments=tool_call_dict["arguments"],
+                            callee=tool_call_dict.get("tool_name") or tool_call_dict.get("name"), # 兼容 name 字段
+                            arguments=tool_call_dict.get("arguments", {}), # 兼容 arguments 缺失
                             parallel_id=parallel_id,
                         )
                         for tool_call_dict in tool_call_dict_list

@@ -50,31 +50,31 @@ oxy_space = [
    # ),
 
    # ====================================调用MCP工具接口=======================================
-   oxy.StdioMCPClient(
-      name="math_tools",
-      params={
-         "command": "uv",
-         "args": ["--directory", "./mcp_servers", "run", "math_tools.py"],
-      },
-   ),
-   oxy.StdioMCPClient(
-      name="fetch_tools",
-      params={
-         "command": "node",
-         "args": ["D:\\APP\\Anaconda\\envs\\oxygent\\node_modules\\mcp-fetch-server\\dist\\index.js"]
-      }
-   ),
-   oxy.StdioMCPClient(
-      name="file_tools",
-      params={
-         "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-filesystem",
-        "D:\\code\\python\\Data_Mining_OxyGent\\Datasets\\field"
-      ]
-      }
-   ),
+   # oxy.StdioMCPClient(
+   #    name="math_tools",
+   #    params={
+   #       "command": "uv",
+   #       "args": ["--directory", "./mcp_servers", "run", "math_tools.py"],
+   #    },
+   # ),
+   # oxy.StdioMCPClient(
+   #    name="fetch_tools",
+   #    params={
+   #       "command": "node",
+   #       "args": ["D:\\APP\\Anaconda\\envs\\oxygent\\node_modules\\mcp-fetch-server\\dist\\index.js"]
+   #    }
+   # ),
+   # oxy.StdioMCPClient(
+   #    name="file_tools",
+   #    params={
+   #       "command": "npx",
+   #    "args": [
+   #      "-y",
+   #      "@modelcontextprotocol/server-filesystem",
+   #      "./Datasets/field"
+   #    ]
+   #    }
+   # ),
 
    # ====================================function call=======================================
    # tools.file_tools,
@@ -95,7 +95,7 @@ oxy_space = [
    oxy.ReActAgent(
       is_master=True,
       name="master_agent",
-      tools=["math_tools","fetch_tools","file_tools"],
+      tools=[],
       llm_model="default_llm",
       sub_agents=["time_agent","mysterious_agent"], # ,"my_file_agent"
    )
@@ -105,9 +105,13 @@ oxy_space = [
 async def main():
    async with MAS(oxy_space=oxy_space) as mas:
       #await mas.start_web_service(
-      await mas.start_cli_mode(
-         first_query="please,print the mysterious information"
-      )
+      # await mas.start_cli_mode(
+      #    first_query="please,print the mysterious information"
+      # )
+      print("You: please,print the mysterious information")
+      payload = {"query": "please,print the mysterious information"}
+      oxy_response = await mas.chat_with_agent(payload=payload)
+      print("LLM: ", oxy_response.output)
 
 if __name__ == "__main__":
    import asyncio
