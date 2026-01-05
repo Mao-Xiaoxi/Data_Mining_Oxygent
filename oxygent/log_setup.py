@@ -124,6 +124,11 @@ def setup_logging():
     logging.Logger
         The fully configured root logger.
     """
+    # Check if handlers are already configured to avoid duplicate handlers and file locking issues
+    root_logger = logging.getLogger()
+    if root_logger.handlers:
+        return root_logger
+
     # # Reduce noise from third‑party libraries
     logging.getLogger("mcp").setLevel(logging.WARNING)
     logging.getLogger("httpx").setLevel(logging.WARNING)

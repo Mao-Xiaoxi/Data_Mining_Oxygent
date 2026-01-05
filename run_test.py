@@ -4,7 +4,7 @@ import sys
 import pandas as pd
 from dotenv import load_dotenv
 from oxygent import MAS, Config, oxy, preset_tools
-from oxygent.preset_tools.baidu_search_tools import baidu_search_tools
+from oxygent.preset_tools.metaso_tools import metaso_tools
 import my_first_tools
 
 # 加载环境变量
@@ -44,13 +44,13 @@ oxy_space = [
       tools=["mysterious_tools"],
       llm_model="default_llm",
    ),
-   # 百度搜索工具
-   baidu_search_tools,
+   # Metaso 搜索工具
+   metaso_tools,
    # Master Agent
    oxy.ReActAgent(
       is_master=True,
       name="master_agent",
-      tools=["math_tools", "baidu_search_tools"],
+      tools=["math_tools", "metaso_tools"],
       llm_model="default_llm",
       sub_agents=["time_agent", "mysterious_agent"],
    )

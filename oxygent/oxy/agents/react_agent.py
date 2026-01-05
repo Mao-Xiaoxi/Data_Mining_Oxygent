@@ -418,10 +418,10 @@ class ReActAgent(LocalAgent):
         query = oxy_request.get_query()
         temp_messages = [
             Message.system_message(
-                "Please answer the user's question based on the given tool execution results."
+                self.prompt
             ),
             Message.user_message(
-                f"User question: {query}\n---\nTool execution results: {tool_call_results}"
+                f"User question: {query}\n---\nTool execution results: {tool_call_results}\n\nBased on the above, provide the final answer strictly following the system instructions."
             ),
         ]
         oxy_response = await oxy_request.call(

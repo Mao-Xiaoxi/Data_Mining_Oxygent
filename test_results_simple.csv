@@ -1,0 +1,3 @@
+﻿task_id,query,file_name,model_answer,level,ground_truth,is_correct
+0a5d59c4-7dee-4eef-9f95-918b34f8f3b2,京东开源在GitHub上的基于taro开发的多端UI组件库是由哪个实验室开发的,,京东-凹凸实验室,1,凹凸实验室,True
+d9330a95-6f70-46c5-b1a6-9ffcb64fb6e3,截至2025年8月，京东零售在2025年开源了一款多智能体框架，首字母是O开头的，请问该多智能体框架，对应的pypi的包，第二早的包是在什么时候发布的？回答格式类似：2025年8月14日,,2025年7月22日,2,2025年7月21日,False
