@@ -12,71 +12,169 @@ import my_first_tools
 load_dotenv()
 Config.set_agent_llm_model("default_llm")
 
+from oxygent.prompts import INTENTION_PROMPT
+from oxygent.prompts import SYSTEM_PROMPT
+from oxygent.prompts import SYSTEM_PROMPT_RETRIEVAL
+from oxygent.prompts import MULTIMODAL_PROMPT
+from prompt import METASO_PROMPT,SEARCH_PROMPT,WEB_PROMPT,TERMINAL_PROMPT,REFLECTION_PROMPT,MASTER_PROMPT
+
+
 def create_oxy_space():
     """Create a fresh OxyGent space configuration."""
     return [
-       # 注册 LLM
-       oxy.HttpLLM(
-          name="default_llm",
-          api_key=os.getenv("DEFAULT_LLM_API_KEY"),
-          base_url=os.getenv("DEFAULT_LLM_BASE_URL"),
-          model_name=os.getenv("DEFAULT_LLM_MODEL_NAME"),
-          is_multimodal_supported=True,
-          is_convert_url_to_base64=True,
-       ),
-       # 数学工具 (MCP)
-       oxy.StdioMCPClient(
-          name="math_tools",
-          params={
-             "command": "python",
-             "args": ["mcp_servers/math_tools.py"],
-          },
-       ),
-       # Metaso 工具
-       metaso_tools,
-       # Master Agent
-       oxy.ReActAgent(
-          is_master=True,
-          name="master_agent",
-          tools=["math_tools", "metaso_tools"],
-          llm_model="default_llm",
-          max_react_rounds=5, # Limit the number of reasoning steps
-          prompt="""You are a smart answering assistant with access to Metaso AI tools.
+        # ==================================== oxygent 基本工具示例=======================================
+        oxy.HttpLLM(   #注册LLM
+            name="default_llm",
+            api_key=os.getenv("DEFAULT_LLM_API_KEY"),
+            base_url=os.getenv("DEFAULT_LLM_BASE_URL"),
+            model_name=os.getenv("DEFAULT_LLM_MODEL_NAME"),
+        ),
+        preset_tools.time_tools,
+        oxy.ReActAgent(
+            name="time_agent",
+            desc="A tool that can query the time",
+            tools=["time_tools"],
+        ),
+        # preset_tools.file_tools,
+        # oxy.ReActAgent(
+        #    name="file_agent",
+        #    desc="A tool that can operate the file system", #可以设置prompt
+        #    tools=["file_tools"],
+        # ),
 
-AVAILABLE TOOLS:
-1. metaso_chat: Use this for ALMOST ALL questions. It is a smart search-enhanced answering tool.
-2. metaso_reader: Use this ONLY when you have a specific URL that you need to read in full detail.
-3. math_tools: Use this for pure math calculations.
+        # 使用mcp需要删除代码中重名function call（包括master中的subagent）
+        # preset_tools.math_tools,
+        # oxy.ReActAgent(
+        #    name="math_agent",
+        #    desc="A tool that can perform mathematical calculations.",
+        #    tools=["math_tools"],
+        # ),
 
-STRATEGY FOR CHOOSING TOOLS:
-- ALWAYS start by using `metaso_chat` to ask the question. It has built-in search capabilities.
-- Only use `metaso_reader` if `metaso_chat` returns a specific URL and tells you to read it for more details.
+        # ====================================调用MCP工具接口=======================================
+        
+        oxy.StdioMCPClient(
+            name="file_tools",
+            params={
+                "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-filesystem",
+                "./Datasets/field"
+            ]
+            }
+        ),
+        oxy.StdioMCPClient(
+            name="minteractive-terminal_tools",
+            params={
+                "command": "uvx",
+                "args": ["interactive-terminal-mcp"]
+            }
+        ),
+        oxy.StdioMCPClient(
+            name="chrome-devtools",
+            params={
+                "command": "npx",
+                "args": [
+                "-y",
+                "chrome-devtools-mcp@latest"
+            ]
+            }
+        ),
+        oxy.StdioMCPClient(
+            name="fetch_tools",
+            params={
+                "command": "node",
+                "args": ["D:\\APP\\Anaconda\\envs\\oxygent\\node_modules\\mcp-fetch-server\\dist\\index.js"]
+            }
+        ),
+        oxy.StdioMCPClient(
+            name="math_tools",
+            params={
+                "command": "uv",
+                "args": ["--directory", "./mcp_servers", "run", "math_tools.py"],
+            },
+        ),
+        
+        # oxy.StdioMCPClient(
+        #    name="interactive_terminal_tools",
+        #    params={
+        #    "command": "node",
+        #    "args": [
+        #      "d:\\code\\python\\agent_camel\\camel\\iterm-mcp\\build\\index.js"
+        #    ]
+        #    }
+        # ),
+        
+        # ====================================function call=======================================
+        # tools.file_tools,
+        # oxy.ReActAgent(
+        #    name="my_file_agent",
+        #    tools=["file_tools"],
+        #    llm_model="default_llm",
+        # ),
+        
+        # ====================================== subagent =========================================
+        my_first_tools.mysterious_tools,
+        oxy.ReActAgent( # our own agent
+            name="mysterious_agent",
+            tools=["mysterious_tools"],
+            llm_model="default_llm",
+        ),
+        oxy.ReActAgent(
+            is_master=False,
+            name='terminal_agent',
+            tools=['minteractive-terminal_tools'],
+            llm_model="default_llm",
+            desc="An agent that allows you to operate a Windows system using the terminal command line and test running code.",
+            #prompt=terminal_prompt,
+        ),
+        metaso_tools,
+        oxy.ReActAgent(
+            is_master=False,
+            name='browser_interact_agent',
+            tools=['chrome-devtools',"metaso_tools"],
+            llm_model="default_llm",
+            desc="An agent that allows you to use Chrome DevTools to browse the web and extract."
+        ),
+        oxy.ReActAgent(
+            is_master=False,
+            name='search_agent',
+            tools=['fetch_tools'],
+        ),
+        oxy.ReActAgent(
+            is_master=False,
+            name='logic_agent',
+            tools=['math_tools'],
+            llm_model="default_llm",
+            desc="An agent that can perform complex logical reasoning and calculations using math tools."
+        ),
+        oxy.ReActAgent(
+            is_master=False,
+            name='Image_audio_agent',
+            tools=[],
+            llm_model="default_llm",
+            desc="An agent that can process images and audio files."
+        ),
+        oxy.ReActAgent(
+            is_master=False,
+            name='reflection_agent',
+            tools=[],
+            llm_model="default_llm",
+            desc="An agent that can reflect on its own actions and improve its performance over time.",
+            prompt=REFLECTION_PROMPT
+        ),
+        
 
-CRITICAL INSTRUCTIONS:
-1. Output ONLY the final answer. Do NOT include any explanation, reasoning, steps, thinking process, or text like "Answer:".
-2. If the answer is a number, output ONLY the number (e.g., "3").
-3. Output in Chinese unless the question explicitly asks for English.
-4. Do not loop. If you are stuck, guess and finish.
-5. STRICT LIMIT: You can use `metaso_chat` AT MOST ONCE. If you get an error, STOP and output the answer.
-6. TOOL CALL FORMAT: You MUST use the following JSON format to call a tool:
-```json
-{
-    "tool_name": "metaso_chat",
-    "arguments": {
-        "message": "your question here"
-    }
-}
-```
-DO NOT use "action" or "action_input". Use "tool_name" and "arguments".
-
-Examples:
-User: "1+1=?"
-You: "2"
-
-User: "中国的首都是哪里？"
-You: "北京"
-"""
-       )
+        # ==================================== master agent =======================================
+        oxy.ReActAgent(
+            is_master=True,
+            name="master_agent",
+            tools=[],
+            llm_model="default_llm",
+            sub_agents=["browser_interact_agent","mysterious_agent",'terminal_agent','search_agent','logic_agent','Image_audio_agent','reflection_agent'], # ,"my_file_agent"
+            #prompt=MASTER_PROMPT
+            max_react_rounds=5, # Limit the number of reasoning steps
+        )
     ]
 
 async def process_task(sem, task_id, query, file_name=None, level='unknown', answer=''):
@@ -139,7 +237,7 @@ async def process_task(sem, task_id, query, file_name=None, level='unknown', ans
 
 async def main():
     # 1. 读取问题列表 (JSONL)
-    problem_file = 'Datasets/valid/simple.jsonl'
+    problem_file = 'Datasets/valid/data.jsonl'
     if not os.path.exists(problem_file):
         print(f"Error: {problem_file} not found.")
         return
